@@ -20,7 +20,6 @@ app.include_router(data_routing.router)
 
 HOST = "0.0.0.0"
 PORT = 9000
-INSTRUMENT_DEFUALT_PORT = 8080
 
 
 if __name__ == "__main__":
