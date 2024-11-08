@@ -1,0 +1,22 @@
+# Ignore Python cache files and folders
+__pycache__/
+*.py[cod]
+
+# Ignore virtual environments
+venv/
+env/
+*sqlli
+sqllite.db
+# Ignore log files and temporary files
+*.log
+*.tmp
+
+# Ignore .git directory
+.git/
+
+# Ignore Docker-related files (if not needed inside the image)
+Dockerfile
+.dockerignore
+
+# Ignore any local dev config files
+*.env

@@ -1,0 +1,11 @@
+websockets
+fastapi
+anyio
+requests
+uvicorn
+pydantic
+sqlalchemy
+pythonping
+reportlab
+jinja2
+python-multipart

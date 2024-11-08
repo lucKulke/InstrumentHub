@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Instrument Monitoring</title>
+  </head>
+  <body>
+    <h1>Live Data</h1>
+
+    <label for="instrument">Select Instrument:</label>
+    <select id="instrument">
+      <!-- Options will be populated here -->
+    </select>
+
+    <button onclick="connect()">Connect</button>
+
+    <h2>Received Data:</h2>
+    <div id="weight">Waiting for data...</div>
+
+    <h2>Send Command:</h2>
+    <input type="text" id="commandInput" placeholder="Enter command" />
+    <button onclick="sendCommand()">Send</button>
+
+    <script>
+      let ws = null;
+
+      // Fetch available instruments from the server
+      async function fetchInstruments() {
+        try {
+          const apiUrl = `${window.location.origin}/instruments`; // Update this path as necessary
+          const response = await fetch(apiUrl);
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+
+          const instruments = await response.json();
+          const instrumentSelect = document.getElementById("instrument");
+
+          // Clear existing options
+          instrumentSelect.innerHTML = "";
+
+          // Populate the select options
+          instruments.forEach((instrument) => {
+            const option = document.createElement("option");
+            option.value = instrument.id; // Assuming 'name' is the key for the instrument ID
+            option.textContent = `${instrument.name} (${instrument.description})`; // Display name and description
+            instrumentSelect.appendChild(option);
+          });
+        } catch (error) {
+          console.error("Error fetching instruments:", error);
+        }
+      }
+
+      function connect() {
+        // Get selected instrument
+        const instrumentId = document.getElementById("instrument").value;
+        console.log(instrumentId);
+
+        if (ws) {
+          ws.close();
+          console.log(`Disconnected from the previous instrument WebSocket.`);
+        }
+
+        ws = new WebSocket(
+          `ws://${window.location.host}/data_routing/ws/client/${instrumentId}`
+        );
+        console.log(`Connecting to WebSocket for ${instrumentId}`);
+
+        ws.onmessage = function (event) {
+          const data = event.data;
+          console.log(data);
+          document.getElementById("weight").innerText = data;
+        };
+
+        ws.onclose = function (event) {
+          document.getElementById("weight").innerText = "Connection closed";
+          console.log(`WebSocket for ${instrumentId} is closed.`);
+        };
+
+        ws.onerror = function (event) {
+          console.error(`WebSocket error for ${instrumentId}`, event);
+        };
+
+        ws.onopen = function () {
+          console.log(`WebSocket connected to ${instrumentId}`);
+        };
+      }
+
+      function sendCommand() {
+        const command = document.getElementById("commandInput").value;
+
+        if (ws && ws.readyState === WebSocket.OPEN) {
+          ws.send(command);
+          console.log(`Command sent: ${command}`);
+        } else {
+          console.log("WebSocket is not connected. Please connect first.");
+        }
+      }
+
+      // Fetch instruments when the page loads
+      window.onload = fetchInstruments;
+    </script>
+  </body>
+</html>

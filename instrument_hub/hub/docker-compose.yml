@@ -1,0 +1,15 @@
+services:
+  app:
+    image: vlbit/instrument-hub:latest # Or you can use 'build: .' to build the image locally
+    container_name: instrument-hub
+    volumes:
+      - instrument-hub:/app/data # Mount the named volume to the /app/data directory
+    ports:
+      - "9000:9000" # Map host port 8000 to container port 8000
+    environment:
+      # You can specify environment variables here if needed
+      - ENVIRONMENT=production
+    restart: always # Automatically restart the container if it crashes
+
+volumes:
+  instrument-hub: # Define the named volume
