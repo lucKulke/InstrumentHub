@@ -1,6 +1,0 @@
-anyio
-requests
-python-multipart
-pyserial
-gpiozero
-lgpio
