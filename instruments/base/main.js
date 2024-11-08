@@ -4,16 +4,17 @@ const fs = require("fs");
 
 let config;
 try {
-  const data = fs.readFileSync("config.json", "utf8"); // Read the file synchronously
-  config = JSON.parse(data); // Parse JSON data
+  const data = fs.readFileSync("config.json", "utf8"); // Read in config
+  config = JSON.parse(data);
 } catch (error) {
   console.error("Error reading config file:", error);
-  process.exit(1); // Exit if there's an error
+  process.exit(1);
 }
 
 const wsUrl = config.hub_url + config.id;
-const driverProcess = spawn("venv/bin/python", ["driver.py"]);
-
+const driverProcess = spawn(config.driver_runtime_path, [
+  config.driver_filename,
+]);
 const ledProcess = spawn("venv/bin/python", ["status_led.py"]);
 var ws;
 var connected = false;
@@ -36,15 +37,15 @@ function connectWebSocket() {
   const timeout = setTimeout(() => {
     if (!connected) {
       console.log("Connection attempt timed out. Retrying...");
-      ws.terminate(); // Forcefully close the WebSocket
-      reconnect(); // Attempt reconnect
+      ws.terminate();
+      reconnect();
     }
   }, connectionTimeout);
 
   ws.on("open", () => {
     clearTimeout(timeout); // Clear the timeout as we are now connected
     connected = true;
-    reconnectAttempts = 0; // Reset reconnection attempts on successful connection
+    reconnectAttempts = 0;
     ledProcess.stdin.write("standby_on\n");
     console.log("Connected to server");
   });
@@ -80,9 +81,9 @@ function connectWebSocket() {
   });
 }
 
-// Function to reconnect WebSocket with exponential backoff and max attempts
+// Function to reconnect WebSocket
 function reconnect() {
-  if (connected) return; // Do not reconnect if already connected
+  if (connected) return;
   let backoffTime;
   if (reconnectAttempts >= maxReconnectAttempts) {
     console.log("Max reconnection attempts reached. Reconnecting every hour.");
@@ -111,9 +112,9 @@ function reconnect() {
 // Initial connection
 connectWebSocket();
 
-// Listen for data from the Python process
+// Listen for data from the Driver process
 driverProcess.stdout.on("data", (data) => {
-  console.log(`Received data from Python: ${data}`);
+  console.log(`Received data from Driver: ${data}`);
   const payload = `{"data" : "${data}" }`;
 
   // Send data to the server if connected
@@ -125,10 +126,10 @@ driverProcess.stdout.on("data", (data) => {
   }
 });
 
-// Handle Python process errors
+// Handle Driver process errors
 driverProcess.stderr.on("data", (data) => {
   ledProcess.stdin.write("standby_off\n");
-  console.error(`Python error: ${data}`);
+  console.error(`Driver error: ${data}`);
 });
 
 // Handle LED process errors
@@ -136,9 +137,9 @@ ledProcess.stderr.on("data", (data) => {
   console.error(`LED process error: ${data}`);
 });
 
-// Handle Python and LED process exits
+// Handle Driver and LED process exits
 driverProcess.on("close", (code) => {
-  console.log(`Python process exited with code ${code}`);
+  console.log(`Driver process exited with code ${code}`);
 });
 ledProcess.on("close", (code) => {
   console.log(`LED process exited with code ${code}`);

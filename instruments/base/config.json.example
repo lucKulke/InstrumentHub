@@ -1,0 +1,6 @@
+{
+  "id": "dd90b96c-3bd1-452e-aed7-e59267804e9d",
+  "hub_ws_url": "ws://localhost:9000/data_routing/ws/instrument/",
+  "driver_runtime_path": "venv/bin/python",
+  "driver_filename": "driver.py"
+}
