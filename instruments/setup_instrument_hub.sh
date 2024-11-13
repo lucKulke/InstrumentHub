@@ -41,6 +41,9 @@ SERVICE_PATH="/etc/systemd/system/$SERVICE_NAME"
 # Set the GitHub raw URL for repository and branch
 REPO_URL="https://github.com/$GITHUB_USER/$REPO_NAME/raw/$BRANCH_NAME"  # Raw GitHub URL
 
+read -p "Enter the server URL: " SERVER_URL
+read -p "Enter the instrument ID: " INSTRUMENT_ID
+
 # Update & Install dependencies
 echo "Updating system and installing dependencies..."
 sudo apt update -y && sudo apt upgrade -y
@@ -79,6 +82,17 @@ echo "searching for '$INSTRUMENT_NAME'"
 find "$REPO_NAME-$BRANCH_NAME/instruments/drivers/$INSTRUMENT_NAME" -type f -exec mv {} "$PROJECT_DIR/drivers/" \;
 #mv "$REPO_NAME-$BRANCH_NAME/instruments/drivers/$INSTRUMENT_NAME" "$PROJECT_DIR/driver/"
 rm -rf "$BRANCH_NAME.zip" "$REPO_NAME-$BRANCH_NAME"
+
+echo "Creating config.json..."
+cat <<EOL > "$PROJECT_DIR/config.json"
+{
+  "hub_ws_url": "$SERVER_URL",
+  "id": "$INSTRUMENT_ID",
+  "driver_runtime_path": "venv/bin/python",
+  "driver_filename": "driver.py"
+}
+EOL
+
 
 # Set up Python virtual environment
 echo "Setting up Python virtual environment..."
