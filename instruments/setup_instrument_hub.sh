@@ -10,6 +10,10 @@ usage() {
 
 # Parse input arguments
 USER="admin"  # Default user is 'pi'
+REPO_NAME="InstrumentHub"  # Default repository name
+BRANCH_NAME="main"
+GITHUB_USER="lucKulke"  # Default branch (you can change it if necessary)
+
 while [[ "$1" =~ ^- ]]; do
   case "$1" in
     --user)  # If --user flag is passed, set the username
@@ -29,11 +33,13 @@ if [ -z "$1" ]; then
 fi
 
 # Define Variables
-REPO_URL="https://github.com/lucKulke/InstrumentHub/raw/main"  # Raw GitHub URL
-PROJECT_DIR="/home/$USER/instrument_hub"  # Directory where the project will be set up
 INSTRUMENT_NAME="$1"  # The name of the instrument (passed as an argument)
+PROJECT_DIR="/home/$USER/instrument_hub"  # Directory where the project will be set up
 SERVICE_NAME="instrument_hub.service"
 SERVICE_PATH="/etc/systemd/system/$SERVICE_NAME"
+
+# Set the GitHub raw URL for repository and branch
+REPO_URL="https://github.com/$GITHUB_USER/$REPO_NAME/raw/$BRANCH_NAME"  # Raw GitHub URL
 
 # Update & Install dependencies
 echo "Updating system and installing dependencies..."
@@ -54,10 +60,10 @@ cd "$PROJECT_DIR"
 
 # Download the base folder (code common to all instruments) as a ZIP archive
 echo "Downloading base folder..."
-curl -L "https://github.com/lucKulke/InstrumentHub/archive/refs/heads/main.zip" -o base.zip
+curl -L "https://github.com/$GITHUB_USER/$REPO_NAME/archive/refs/heads/$BRANCH_NAME.zip" -o base.zip
 unzip base.zip
-mv yourrepo-main/instruments/base "$PROJECT_DIR/base"
-rm -rf yourrepo-main base.zip
+mv "$REPO_NAME-$BRANCH_NAME/instruments/base" "$PROJECT_DIR/base"
+rm -rf "$REPO_NAME-$BRANCH_NAME" base.zip
 
 # Download the driver for the specific instrument
 echo "Downloading driver for $INSTRUMENT_NAME..."
