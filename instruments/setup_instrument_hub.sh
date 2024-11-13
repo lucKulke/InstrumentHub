@@ -9,7 +9,7 @@ usage() {
 }
 
 # Parse input arguments
-USER="admin"  # Default user is 'pi'
+USER="pi"  # Default user is 'pi'
 while [[ "$1" =~ ^- ]]; do
   case "$1" in
     --user)  # If --user flag is passed, set the username
@@ -38,7 +38,7 @@ SERVICE_PATH="/etc/systemd/system/$SERVICE_NAME"
 # Update & Install dependencies
 echo "Updating system and installing dependencies..."
 sudo apt update -y && sudo apt upgrade -y
-sudo apt install -y curl python3-pip python3-venv
+sudo apt install -y curl python3-pip python3-venv unzip
 
 # Install Bun (Node package manager)
 echo "Installing Bun..."
@@ -52,9 +52,12 @@ echo "Setting up project directory for user '$USER'..."
 mkdir -p "$PROJECT_DIR"
 cd "$PROJECT_DIR"
 
-# Download the base folder (code common to all instruments)
+# Download the base folder (code common to all instruments) as a ZIP archive
 echo "Downloading base folder..."
-curl -LO "$REPO_URL/instruments/base"  # Modify this to download the correct folder structure, or loop to fetch files
+curl -L "https://github.com/yourusername/yourrepo/archive/refs/heads/main.zip" -o base.zip
+unzip base.zip
+mv yourrepo-main/instruments/base "$PROJECT_DIR/base"
+rm -rf yourrepo-main base.zip
 
 # Download the driver for the specific instrument
 echo "Downloading driver for $INSTRUMENT_NAME..."
