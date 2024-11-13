@@ -9,4 +9,4 @@ pythonping
 reportlab
 jinja2
 python-multipart
-psycopg2
+psycopg2-binary

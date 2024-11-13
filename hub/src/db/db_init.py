@@ -3,9 +3,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from .models import Base
 import os
-from dotenv import load_dotenv
 
-load_dotenv()
 
 DB_TYPE = os.getenv("DB_TYPE")
 DB_USER = os.getenv("DB_USER")
