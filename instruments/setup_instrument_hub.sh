@@ -11,8 +11,8 @@ usage() {
 # Parse input arguments
 USER="admin"  # Default user is 'pi'
 REPO_NAME="InstrumentHub"  # Default repository name
-BRANCH_NAME="main"
-GITHUB_USER="lucKulke"  # Default branch (you can change it if necessary)
+BRANCH_NAME="main"    # Default branch (you can change it if necessary)
+GITHUB_USER="lucKulke"
 
 while [[ "$1" =~ ^- ]]; do
   case "$1" in
@@ -65,19 +65,29 @@ unzip base.zip
 mv "$REPO_NAME-$BRANCH_NAME/instruments/base" "$PROJECT_DIR/base"
 rm -rf "$REPO_NAME-$BRANCH_NAME" base.zip
 
-# Download the driver for the specific instrument
-echo "Downloading driver for $INSTRUMENT_NAME..."
-curl -LO "$REPO_URL/instruments/drivers/$INSTRUMENT_NAME/driver.py"
+# Download the specific driver folder for the chosen instrument
+echo "Downloading driver folder for $INSTRUMENT_NAME..."
+curl -LO "https://github.com/$GITHUB_USER/$REPO_NAME/archive/refs/heads/$BRANCH_NAME.zip"
+unzip "$REPO_NAME-$BRANCH_NAME.zip" -d "$PROJECT_DIR"
+mv "$REPO_NAME-$BRANCH_NAME/instruments/drivers/$INSTRUMENT_NAME" "$PROJECT_DIR/drivers/$INSTRUMENT_NAME"
+rm -rf "$REPO_NAME-$BRANCH_NAME" "$REPO_NAME-$BRANCH_NAME.zip"
 
 # Set up Python virtual environment
 echo "Setting up Python virtual environment..."
 python3 -m venv venv
 source venv/bin/activate
 
-# Install Python dependencies (requirements.txt should exist in base folder)
-echo "Installing Python dependencies..."
+# Install Python dependencies for the base folder (requirements.txt should exist in base folder)
+echo "Installing Python dependencies for base..."
 curl -LO "$REPO_URL/instruments/base/requirements.txt"
 pip install -r requirements.txt
+
+# Install Python dependencies for the driver (if it has its own requirements.txt)
+DRIVER_REQ_FILE="$PROJECT_DIR/drivers/$INSTRUMENT_NAME/requirements.txt"
+if [ -f "$DRIVER_REQ_FILE" ]; then
+    echo "Installing Python dependencies for the driver..."
+    pip install -r "$DRIVER_REQ_FILE"
+fi
 
 # Install Bun dependencies (if you have a package.json)
 bun install
