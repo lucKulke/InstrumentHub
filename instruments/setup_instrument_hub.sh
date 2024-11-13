@@ -78,7 +78,7 @@ echo "searching for '$INSTRUMENT_NAME'"
 
 find "$REPO_NAME-$BRANCH_NAME/instruments/drivers/$INSTRUMENT_NAME" -type f -exec mv {} "$PROJECT_DIR/drivers/" \;
 #mv "$REPO_NAME-$BRANCH_NAME/instruments/drivers/$INSTRUMENT_NAME" "$PROJECT_DIR/driver/"
-rm -rf "$BRANCH_NAME.zip"
+rm -rf "$BRANCH_NAME.zip" "$REPO_NAME-$BRANCH_NAME"
 
 # Set up Python virtual environment
 echo "Setting up Python virtual environment..."
@@ -87,11 +87,11 @@ source venv/bin/activate
 
 # Install Python dependencies for the base folder (requirements.txt should exist in base folder)
 echo "Installing Python dependencies for base..."
-curl -LO "$REPO_URL/instruments/base/requirements.txt"
 pip install -r requirements.txt
 
+
 # Install Python dependencies for the driver (if it has its own requirements.txt)
-DRIVER_REQ_FILE="$PROJECT_DIR/drivers/$INSTRUMENT_NAME/requirements.txt"
+DRIVER_REQ_FILE="$PROJECT_DIR/drivers/requirements.txt"
 if [ -f "$DRIVER_REQ_FILE" ]; then
     echo "Installing Python dependencies for the driver..."
     pip install -r "$DRIVER_REQ_FILE"
@@ -104,15 +104,15 @@ bun install
 echo "Creating systemd service for user '$USER'..."
 sudo tee "$SERVICE_PATH" > /dev/null <<EOL
 [Unit]
-Description=Instrument Hub Service
+Description=Instrument Service
 After=network.target
 
 [Service]
 User=$USER
 WorkingDirectory=$PROJECT_DIR
-ExecStart=$PROJECT_DIR/venv/bin/python $PROJECT_DIR/base/app.py
+ExecStart=/home/$USER/.bun/bin/bun $PROJECT_DIR/main.js
 Restart=always
-Environment=PATH=$PROJECT_DIR/venv/bin:$PATH
+
 
 [Install]
 WantedBy=multi-user.target
