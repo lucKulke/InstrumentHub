@@ -72,7 +72,10 @@ rm -rf "$REPO_NAME-$BRANCH_NAME" base.zip
 echo "Downloading driver folder for $INSTRUMENT_NAME..."
 curl -LO "https://github.com/$GITHUB_USER/$REPO_NAME/archive/refs/heads/$BRANCH_NAME.zip"
 unzip "$BRANCH_NAME.zip" -d "$PROJECT_DIR"
+echo "creating directory drivers"
 mkdir "$PROJECT_DIR/drivers/"
+echo "searching for '$INSTRUMENT_NAME'"
+
 find "$REPO_NAME-$BRANCH_NAME/instruments/drivers/$INSTRUMENT_NAME" -type f -exec mv {} "$PROJECT_DIR/drivers/" \;
 #mv "$REPO_NAME-$BRANCH_NAME/instruments/drivers/$INSTRUMENT_NAME" "$PROJECT_DIR/driver/"
 rm -rf "$BRANCH_NAME.zip"
