@@ -59,7 +59,7 @@ mkdir -p "$PROJECT_DIR"
 cd "$PROJECT_DIR"
 
 # Download the base folder (code common to all instruments) as a ZIP archive
-echo "Downloading base folder..."
+echo "Downloading base folder..."cd
 curl -L "https://github.com/$GITHUB_USER/$REPO_NAME/archive/refs/heads/$BRANCH_NAME.zip" -o base.zip
 unzip base.zip
 mv "$REPO_NAME-$BRANCH_NAME/instruments/base" "$PROJECT_DIR"
@@ -69,7 +69,8 @@ rm -rf "$REPO_NAME-$BRANCH_NAME" base.zip
 echo "Downloading driver folder for $INSTRUMENT_NAME..."
 curl -LO "https://github.com/$GITHUB_USER/$REPO_NAME/archive/refs/heads/$BRANCH_NAME.zip"
 unzip "$BRANCH_NAME.zip" -d "$PROJECT_DIR"
-mv "$REPO_NAME-$BRANCH_NAME/instruments/drivers/$INSTRUMENT_NAME" "$PROJECT_DIR/drivers/$INSTRUMENT_NAME"
+mkdir "$PROJECT_DIR/driver/"
+mv "$REPO_NAME-$BRANCH_NAME/instruments/drivers/$INSTRUMENT_NAME" "$PROJECT_DIR/driver/"
 rm -rf "$REPO_NAME-$BRANCH_NAME" "$REPO_NAME-$BRANCH_NAME.zip"
 
 # Set up Python virtual environment
