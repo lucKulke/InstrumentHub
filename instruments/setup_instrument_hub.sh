@@ -2,38 +2,60 @@
 
 # Function to display usage instructions
 usage() {
-  echo "Usage: $0 <instrument_name> [--user <username>]"
-  echo "  <instrument_name>  The name of the instrument to set up (e.g., 'temperature_sensor')."
-  echo "  --user <username>  (Optional) Specify the user on the Raspberry Pi (default is 'pi')."
+  echo "Usage: $0 <instrument_name> [--user <username>] [--server_url <url>] [--instrument_id <id>]"
+  echo "  <instrument_name>       The name of the instrument to set up (e.g., 'temperature_sensor')."
+  echo "  --user <username>       (Optional) Specify the user on the Raspberry Pi (default is 'pi')."
+  echo "  --server_url <url>      The URL of the server to connect to."
+  echo "  --instrument_id <id>    The ID for the instrument."
   exit 1
 }
 
-# Parse input arguments
-USER="admin"  # Default user is 'pi'
+# Default values
+USER="admin"  # Default user is 'admin'
 REPO_NAME="InstrumentHub"  # Default repository name
 BRANCH_NAME="main"    # Default branch (you can change it if necessary)
-GITHUB_USER="lucKulke"
+GITHUB_USER="lucKulke"   # Replace with your desired branch name
 
-while [[ "$1" =~ ^- ]]; do
+# Parse input arguments
+while [[ "$#" -gt 0 ]]; do
   case "$1" in
-    --user)  # If --user flag is passed, set the username
+    --user)
       USER="$2"
       shift 2
       ;;
-    *)  # Unknown option, show usage
+    --server_url)
+      SERVER_URL="$2"
+      shift 2
+      ;;
+    --instrument_id)
+      INSTRUMENT_ID="$2"
+      shift 2
+      ;;
+    -*)
+      echo "Unknown option: $1"
       usage
+      ;;
+    *)
+      if [ -z "$INSTRUMENT_NAME" ]; then
+        INSTRUMENT_NAME="$1"
+        shift
+      else
+        echo "Unexpected argument: $1"
+        usage
+      fi
       ;;
   esac
 done
 
-# Ensure the script is passed an argument for the instrument name
-if [ -z "$1" ]; then
-  echo "Error: <instrument_name> is required."
+
+if [ -z "$INSTRUMENT_NAME" ] || [ -z "$SERVER_URL" ] || [ -z "$INSTRUMENT_ID" ]; then
+  echo "Error: <instrument_name>, --server_url, and --instrument_id are required."
   usage
 fi
 
-# Define Variables
-INSTRUMENT_NAME="$1"  # The name of the instrument (passed as an argument)
+
+
+
 PROJECT_DIR="/home/$USER/instrument_hub"  # Directory where the project will be set up
 SERVICE_NAME="instrument_hub.service"
 SERVICE_PATH="/etc/systemd/system/$SERVICE_NAME"
@@ -41,8 +63,6 @@ SERVICE_PATH="/etc/systemd/system/$SERVICE_NAME"
 # Set the GitHub raw URL for repository and branch
 REPO_URL="https://github.com/$GITHUB_USER/$REPO_NAME/raw/$BRANCH_NAME"  # Raw GitHub URL
 
-read -p "Enter the server URL: " SERVER_URL
-read -p "Enter the instrument ID: " INSTRUMENT_ID
 
 # Update & Install dependencies
 echo "Updating system and installing dependencies..."
@@ -89,9 +109,10 @@ cat <<EOL > "$PROJECT_DIR/config.json"
   "hub_ws_url": "$SERVER_URL",
   "id": "$INSTRUMENT_ID",
   "driver_runtime_path": "venv/bin/python",
-  "driver_filename": "driver.py"
+  "driver_filename": "drivers/driver.py"
 }
 EOL
+
 
 
 # Set up Python virtual environment
