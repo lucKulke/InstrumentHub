@@ -62,7 +62,10 @@ cd "$PROJECT_DIR"
 echo "Downloading base folder..."cd
 curl -L "https://github.com/$GITHUB_USER/$REPO_NAME/archive/refs/heads/$BRANCH_NAME.zip" -o base.zip
 unzip base.zip
-mv "$REPO_NAME-$BRANCH_NAME/instruments/base" "$PROJECT_DIR"
+# Move only the files from the base folder, not the folder itself
+find "$REPO_NAME-$BRANCH_NAME/instruments/base" -type f -exec mv {} "$PROJECT_DIR/" \;
+
+#mv "$REPO_NAME-$BRANCH_NAME/instruments/base" "$PROJECT_DIR"
 rm -rf "$REPO_NAME-$BRANCH_NAME" base.zip
 
 # Download the specific driver folder for the chosen instrument
@@ -70,8 +73,9 @@ echo "Downloading driver folder for $INSTRUMENT_NAME..."
 curl -LO "https://github.com/$GITHUB_USER/$REPO_NAME/archive/refs/heads/$BRANCH_NAME.zip"
 unzip "$BRANCH_NAME.zip" -d "$PROJECT_DIR"
 mkdir "$PROJECT_DIR/driver/"
-mv "$REPO_NAME-$BRANCH_NAME/instruments/drivers/$INSTRUMENT_NAME" "$PROJECT_DIR/driver/"
-rm -rf "$REPO_NAME-$BRANCH_NAME" "$REPO_NAME-$BRANCH_NAME.zip"
+find "$REPO_NAME-$BRANCH_NAME/instruments/drivers/$INSTRUMENT_NAME" -type f -exec mv {} "$PROJECT_DIR/drivers/" \;
+#mv "$REPO_NAME-$BRANCH_NAME/instruments/drivers/$INSTRUMENT_NAME" "$PROJECT_DIR/driver/"
+rm -rf "$BRANCH_NAME.zip"
 
 # Set up Python virtual environment
 echo "Setting up Python virtual environment..."
