@@ -5,7 +5,7 @@ import multiprocessing
 
 # Serial settings
 DEVICE_PATH = "/dev/ttyUSB1"
-BAUD_RATE = 9600
+BAUD_RATE = 1200
 PARITY = serial.PARITY_ODD
 STOPBITS = serial.STOPBITS_ONE
 BYTESIZE = serial.SEVENBITS

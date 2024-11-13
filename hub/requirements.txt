@@ -10,3 +10,5 @@ reportlab
 jinja2
 python-multipart
 psycopg2-binary
+psycopg2
+dotenv

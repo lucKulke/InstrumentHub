@@ -56,7 +56,7 @@ fi
 
 
 
-PROJECT_DIR="/home/$USER/instrument_hub"  # Directory where the project will be set up
+PROJECT_DIR="/home/$USER/instrument"  # Directory where the project will be set up
 SERVICE_NAME="instrument_hub.service"
 SERVICE_PATH="/etc/systemd/system/$SERVICE_NAME"
 

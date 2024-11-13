@@ -1,0 +1,19 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres
+    container_name: instrument-hub-db
+    restart: always
+    shm_size: 128mb
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: example
+      POSTGRES_DB: instrument_hub_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - instrument-hub-db:/var/lib/postgresql/data #
+
+volumes: # Define the named volume for app data
+  instrument-hub-db:

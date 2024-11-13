@@ -57,21 +57,21 @@ class ConnectionManager:
                 await self.send_message(websocket, message)
 
     async def broadcast_to_instrument(self, instrument_id: UUID, message: str, db):
-        # Broadcast message to all clients subscribed to this instrument
-
         if not self.check_if_led_command(message=message):
             is_valid_command = await self.validate_command(
                 message=message, instrument_id=instrument_id, db=db
             )
+  
             if not is_valid_command:
                 await self.broadcast_to_clients(
                     instrument_id=instrument_id, message="Error: unknown command"
                 )
-
-        else:
-            for websocket, subscribed_id in self.active_instrument_connections.items():
-                if subscribed_id == instrument_id:
-                    await self.send_message(websocket, message)
+              
+                return False
+        
+        for websocket, subscribed_id in self.active_instrument_connections.items():
+            if subscribed_id == instrument_id:
+                await self.send_message(websocket, message)
 
     async def validate_command(self, message: str, instrument_id: UUID, db):
         profile = await get_instrument_profile(instrument_id=instrument_id, db=db)
