@@ -62,13 +62,13 @@ cd "$PROJECT_DIR"
 echo "Downloading base folder..."
 curl -L "https://github.com/$GITHUB_USER/$REPO_NAME/archive/refs/heads/$BRANCH_NAME.zip" -o base.zip
 unzip base.zip
-mv "$REPO_NAME-$BRANCH_NAME/instruments/base" "$PROJECT_DIR/base"
+mv "$REPO_NAME-$BRANCH_NAME/instruments/base" "$PROJECT_DIR"
 rm -rf "$REPO_NAME-$BRANCH_NAME" base.zip
 
 # Download the specific driver folder for the chosen instrument
 echo "Downloading driver folder for $INSTRUMENT_NAME..."
 curl -LO "https://github.com/$GITHUB_USER/$REPO_NAME/archive/refs/heads/$BRANCH_NAME.zip"
-unzip "$REPO_NAME-$BRANCH_NAME.zip" -d "$PROJECT_DIR"
+unzip "$BRANCH_NAME.zip" -d "$PROJECT_DIR"
 mv "$REPO_NAME-$BRANCH_NAME/instruments/drivers/$INSTRUMENT_NAME" "$PROJECT_DIR/drivers/$INSTRUMENT_NAME"
 rm -rf "$REPO_NAME-$BRANCH_NAME" "$REPO_NAME-$BRANCH_NAME.zip"
 
