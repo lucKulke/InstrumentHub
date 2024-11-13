@@ -9,6 +9,10 @@ COPY requirements.txt .
 
 # Install the Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
+# Install PostgreSQL development libraries
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy the FastAPI app code into the container
 COPY . .

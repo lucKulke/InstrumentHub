@@ -8,7 +8,7 @@ __pycache__/
 sqllite.db
 pdfs
 node_modules
-
+compose.yml
 # Distribution / packaging
 .Python
 build/
