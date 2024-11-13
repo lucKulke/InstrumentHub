@@ -11,7 +11,7 @@ try {
   process.exit(1);
 }
 
-const wsUrl = config.hub_url + config.id;
+const wsUrl = config.hub_ws_url + config.id;
 const driverProcess = spawn(config.driver_runtime_path, [
   config.driver_filename,
 ]);
