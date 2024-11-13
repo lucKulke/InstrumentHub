@@ -54,7 +54,7 @@ cd "$PROJECT_DIR"
 
 # Download the base folder (code common to all instruments) as a ZIP archive
 echo "Downloading base folder..."
-curl -L "https://github.com/yourusername/yourrepo/archive/refs/heads/main.zip" -o base.zip
+curl -L "https://github.com/lucKulke/InstrumentHub/archive/refs/heads/main.zip" -o base.zip
 unzip base.zip
 mv yourrepo-main/instruments/base "$PROJECT_DIR/base"
 rm -rf yourrepo-main base.zip
