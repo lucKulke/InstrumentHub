@@ -9,7 +9,7 @@ usage() {
 }
 
 # Parse input arguments
-USER="pi"  # Default user is 'pi'
+USER="admin"  # Default user is 'pi'
 while [[ "$1" =~ ^- ]]; do
   case "$1" in
     --user)  # If --user flag is passed, set the username
