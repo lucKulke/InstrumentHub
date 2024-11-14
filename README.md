@@ -1,9 +1,11 @@
 # Kleinmaelzung
 
 ## System Overview
+
 This project facilitates real-time communication between scientific microcontrollers (e.g., Raspberry Pis that are connected to instruments via serial interface), a central server, and client applications, using WebSocket protocols for seamless, bidirectional data transfer. The system architecture is designed to allow clients to monitor and control instruments remotely through the server, making it ideal for scientific applications that require continuous data streaming and interactive control.
 
 ## System Flow
+
 ### 1. Instrument-to-Microcontroller Connection:
 
 Each scientific instrument is connected to a microcontroller (e.g. a Raspberry Pi) via an appropriate communication interface (e.g. serial (usb, rs232)).
@@ -27,12 +29,13 @@ Clients can select which instruments they want to monitor, and the server will r
 The WebSocket protocol also enables clients to send commands to instruments via the server, providing two-way communication for control and configuration purposes.
 
 ### Key Features
+
 Bi-directional Communication: WebSocket connections enable both data monitoring and command sending, making the system highly interactive.
 Centralized Management: The server coordinates data flow between multiple instruments, microcontrollers, and clients.
 Scalability: Additional instruments and clients can be added as needed, making the system flexible for larger deployments.
 
-
 ## Diagrams showing overall system flow
+
 This diagram outlines the main components and their connections in the system.
 
 ```mermaid
@@ -54,7 +57,7 @@ graph TD
         D1[Client 1]
         D2[Client 2]
     end
-    
+
     A1 -->|usb| B1
     A2 -->|rs232| B2
     A3 -->|i2c| B3
@@ -64,8 +67,9 @@ graph TD
     C -->|WebSocket| D1
     C -->|WebSocket| D2
 ```
+
 2. Data Flow Diagram
-This diagram illustrates how data flows through the system from instruments to clients, with the server as the intermediary.
+   This diagram illustrates how data flows through the system from instruments to clients, with the server as the intermediary.
 
 ```mermaid
 sequenceDiagram
@@ -78,8 +82,9 @@ sequenceDiagram
     Microcontroller->>Server: Forward Data (WebSocket)
     Server->>Client: Stream Data (WebSocket)
 ```
+
 3. Command Flow Diagram
-This shows how commands from a client can be sent back to the instruments through the server and microcontroller.
+   This shows how commands from a client can be sent back to the instruments through the server and microcontroller.
 
 ```mermaid
 sequenceDiagram
@@ -93,17 +98,18 @@ sequenceDiagram
     Microcontroller->>Instrument: Execute Command
 ```
 
-
 ### Additional features:
+
 1. Data Traffic Logging:
 
-    - The server includes a logging feature that records all incoming and outgoing data traffic between the instruments, microcontrollers, and clients.
-    - This feature allows for tracking of data transmission history, which can be useful for diagnostics, troubleshooting, and historical data analysis.
-
+   - The server includes a logging feature that records all incoming and outgoing data traffic between the instruments, microcontrollers, and clients.
+   - This feature allows for tracking of data transmission history, which can be useful for diagnostics, troubleshooting, and historical data analysis.
 
 2. Calibration Protocol Generation:
 
-    - The server can create calibration protocols for instruments, allowing users to standardize and document calibration processes.
-    - The protocol can be downloaded as a PDF, making it easy to print or share for compliance and record-keeping purposes.
+   - The server can create calibration protocols for instruments, allowing users to standardize and document calibration processes.
+   - The protocol can be downloaded as a PDF, making it easy to print or share for compliance and record-keeping purposes.
 
+### Setting up Raspberry pi:
 
+command: curl -fsSL https://raw.githubusercontent.com/lucKulke/InstrumentHub/main/instruments/setup_instrument_hub.sh | bash -s - <instrument_name> --user <pi_username> --server_url "http://example.com" --instrument_id "<uuid>"

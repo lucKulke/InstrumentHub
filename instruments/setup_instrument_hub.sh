@@ -57,7 +57,7 @@ fi
 
 
 PROJECT_DIR="/home/$USER/instrument"  # Directory where the project will be set up
-SERVICE_NAME="instrument_hub.service"
+SERVICE_NAME="instrument.service"
 SERVICE_PATH="/etc/systemd/system/$SERVICE_NAME"
 
 # Set the GitHub raw URL for repository and branch
@@ -139,7 +139,7 @@ bun install
 echo "Creating systemd service for user '$USER'..."
 sudo tee "$SERVICE_PATH" > /dev/null <<EOL
 [Unit]
-Description=Instrument Service
+Description=Instrument Service for $INSTRUMENT_NAME
 After=network.target
 
 [Service]
