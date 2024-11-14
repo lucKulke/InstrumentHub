@@ -46,9 +46,7 @@ def listen() -> str:
                         return last_input
 
 
-def read_instrument_data():
-    # Simulate reading data from an instrument (e.g., a USB device)
-    return f"{random.random()}"
+
 
 
 try:
@@ -57,7 +55,5 @@ try:
         sys.stdout.write(data)
         sys.stdout.flush()  # Make sure data is sent immediately to stdout
         time.sleep(1)  # Simulate a delay in data collection (1 second)
-except KeyboardInterrupt:
-    print("Process interrupted")
 except Exception as e:
     print(f"Error: {e}", file=sys.stderr)
