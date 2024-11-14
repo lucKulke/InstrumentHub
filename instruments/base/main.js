@@ -19,7 +19,6 @@ const ledProcess = spawn("venv/bin/python", ["status_led.py"]);
 var ws;
 var connected = false;
 var reconnectInterval = 5000; // Reconnect every 5 seconds if disconnected
-var connectionTimeout = 5000; // Timeout for initial connection attempt (5 seconds)
 var reconnectAttempts = 0;
 var maxReconnectAttempts = 10; // Limit to prevent excessive reconnections
 
@@ -32,23 +31,6 @@ function connectWebSocket() {
   }
 
   ws = new WebSocket(wsUrl);
-
-  // Set a connection timeout to handle cases where it doesn't connect
-  const timeout = setTimeout(() => {
-    if (!connected) {
-      console.log("Connection attempt timed out. Retrying...");
-      ws.terminate();
-      reconnect();
-    }
-  }, connectionTimeout);
-
-  ws.on("open", () => {
-    clearTimeout(timeout); // Clear the timeout as we are now connected
-    connected = true;
-    reconnectAttempts = 0;
-    ledProcess.stdin.write("standby_on\n");
-    console.log("Connected to server");
-  });
 
   ws.on("message", (message) => {
     console.log(`Received message from server: ${message}`);
@@ -69,25 +51,30 @@ function connectWebSocket() {
     }
   });
 
-  ws.on("error", (error) => {
-    console.error(`WebSocket error: ${error}`);
+  ws.on("open", () => {
+    //clearTimeout(timeout); // Clear the timeout as we are now connected
+    connected = true;
+    reconnectAttempts = 0; // Reset on successful connection
+    ledProcess.stdin.write("standby_on\n");
+    console.log("Connected to server");
   });
 
-  ws.on("close", () => {
+  ws.on("close", async () => {
     console.log("WebSocket connection closed");
     connected = false;
     ledProcess.stdin.write("standby_off\n");
-    reconnect(); // Try to reconnect when connection closes
+    await reconnect(); // Try to reconnect when connection closes
   });
 }
 
 // Function to reconnect WebSocket
-function reconnect() {
+async function reconnect() {
   if (connected) return;
+
   let backoffTime;
   if (reconnectAttempts >= maxReconnectAttempts) {
     console.log("Max reconnection attempts reached. Reconnecting every hour.");
-    backoffTime = 3600000;
+    backoffTime = 3600000; // 1 hour
   } else {
     reconnectAttempts++;
     backoffTime = reconnectInterval * reconnectAttempts;
@@ -98,17 +85,16 @@ function reconnect() {
     );
   }
 
-  setTimeout(() => {
-    if (!connected) {
-      for (var i = 1; i <= 3; i++) {
-        ledProcess.stdin.write("red_0.1_1\n");
-        ledProcess.stdin.write("green_0.1_1\n");
-      }
-      connectWebSocket(); // Reinitialize WebSocket connection
-    }
-  }, backoffTime);
-}
+  await Bun.sleep(backoffTime);
 
+  if (!connected) {
+    for (let i = 1; i <= 3; i++) {
+      ledProcess.stdin.write("red_0.1_1\n");
+      ledProcess.stdin.write("green_0.1_1\n");
+    }
+    connectWebSocket(); // Reinitialize WebSocket connection
+  }
+}
 // Initial connection
 connectWebSocket();
 

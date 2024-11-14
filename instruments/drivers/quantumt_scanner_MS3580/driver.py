@@ -4,7 +4,8 @@ import sys
 import multiprocessing
 
 # Serial settings
-DEVICE_PATH = "/dev/ttyUSB0"
+DEVICE_PATH = "/dev/ttyUSB"
+USB_PORTS = 4
 BAUD_RATE = 1200
 PARITY = serial.PARITY_ODD
 STOPBITS = serial.STOPBITS_ONE
@@ -65,29 +66,32 @@ def main():
     command_queue = multiprocessing.Queue()
 
     # Open the serial connection
-    with serial.Serial(
-        DEVICE_PATH,
-        BAUD_RATE,
-        timeout=TIMEOUT,
-        bytesize=BYTESIZE,
-        parity=PARITY,
-        stopbits=STOPBITS,
-        rtscts=True,
-    ) as ser:
-        # Start the listener function in a separate process
-        listener_process = multiprocessing.Process(
-            target=listen, args=(ser, command_queue)
-        )
-        listener_process.start()
+    port = 0
+    while USB_PORTS != port:
+        try:
+            with serial.Serial(
+                DEVICE_PATH + str(port),
+                BAUD_RATE,
+                timeout=TIMEOUT,
+                bytesize=BYTESIZE,
+                parity=PARITY,
+                stopbits=STOPBITS,
+                rtscts=True,
+            ) as ser:
+                # Start the listener function in a separate process
+                listener_process = multiprocessing.Process(
+                    target=listen, args=(ser, command_queue)
+                )
+                listener_process.start()
 
-        while True:
-            user_command = (
-                sys.stdin.readline().strip()
-            )  # user_command = input("Enter a command (T for Tare, P for Print, Q to Quit): ").strip().upper()
-            if user_command == "Q":
-                listener_process.terminate()
-                break
-            command_queue.put(user_command)
+                while True:
+                    user_command = sys.stdin.readline().strip()
+                    if user_command == "Q":
+                        listener_process.terminate()
+                        break
+                    command_queue.put(user_command)
+        except Exception as e:
+            port += 1
 
 
 if __name__ == "__main__":
