@@ -27,10 +27,21 @@ KEY_MAPPING = {
     "KEY_NUMLOCK": "",
 }
 
-
+device = None
 def listen() -> str:
-    device = evdev.InputDevice(DEVICE_PATH)
-
+    global device
+    i = 0
+    
+    while i != 5: 
+        try:
+            device = evdev.InputDevice(DEVICE_PATH)
+            break
+        except Exception as e:
+            i += 1
+            sys.stdout.write(data)
+            sys.stdout.flush() 
+            time.sleep(2)
+            
     current_input = ""
     last_input = ""
 

@@ -112,4 +112,5 @@ sequenceDiagram
 
 ### Setting up Raspberry pi:
 
-command: curl -fsSL https://raw.githubusercontent.com/lucKulke/InstrumentHub/main/instruments/setup_instrument_hub.sh | bash -s - <instrument_name> --user <pi_username> --server_url "http://example.com" --instrument_id "<uuid>"
+command:
+`curl -fsSL https://raw.githubusercontent.com/lucKulke/InstrumentHub/main/instruments/setup_instrument_hub.sh | bash -s - <instrument_name> --user <pi_username> --server_url "http://example.com" --instrument_id <instrument_uuid>`
