@@ -7,6 +7,7 @@ from src.pydantic_models import (
     InstrumentDataLog,
 )
 from datetime import datetime
+from uuid import UUID
 
 
 router = APIRouter(
@@ -17,18 +18,18 @@ router = APIRouter(
 
 @router.get("/instrument/data_log", response_model=List[InstrumentDataLog])
 async def data_log(
-    name: str, skip: int = 0, limit: int = 10, db: Session = Depends(get_db)
+    instrument_id: UUID, skip: int = 0, limit: int = 10, db: Session = Depends(get_db)
 ):
     "Route for getting a log of data trafic"
-    instrument = db.query(models.Instrument).filter_by(name=name).first()
+    instrument = db.query(models.Instrument).filter_by(id=instrument_id).first()
     if not instrument:
         raise HTTPException(
-            status_code=404, detail=f"No instrument with name '{name}' found."
+            status_code=404, detail=f"No instrument with id '{instrument_id}' found."
         )
 
     return (
         db.query(models.InstrumentData)
-        .filter_by(instrument_id=instrument.id)
+        .filter_by(instrument_id=instrument_id)
         .offset(skip)
         .limit(limit)
         .all()
