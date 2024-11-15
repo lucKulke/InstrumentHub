@@ -8,8 +8,10 @@ from src.db import models
 from src import utils
 from src.pydantic_models import (
     CalibrationData,
+    LastCalibration
 )
 from datetime import datetime
+from uuid import UUID
 
 
 router = APIRouter(
@@ -20,19 +22,19 @@ router = APIRouter(
 
 @router.post("/instrument/calibrate", response_model=CalibrationData)
 async def calibrate(
-    instrument_name: str,
+    instrument_id: UUID,
     inspector_name: str,
     value: float,
     db: Session = Depends(get_db),
 ):
-    instrument = db.query(models.Instrument).filter_by(name=instrument_name).first()
+    instrument = db.query(models.Instrument).filter_by(id=instrument_id).first()
     if not instrument:
         raise HTTPException(
             status_code=404,
-            detail=f"Instrument with name '{instrument_name}' not found.",
+            detail=f"Instrument with id '{instrument_id}' not found.",
         )
     new_calibration = models.Calibrate(
-        instrument_name=instrument_name,
+        instrument_name=instrument.name,
         instrument_id=instrument.id,
         inspector=inspector_name,
         value=value,
@@ -44,17 +46,17 @@ async def calibrate(
 
 @router.get("/instrument/calibration_data", response_model=List[CalibrationData])
 async def calibration_data(
-    instrument_name: str, skip: int = 0, limit: int = 10, db: Session = Depends(get_db)
+    instrument_id: UUID, skip: int = 0, limit: int = 10, db: Session = Depends(get_db)
 ):
-    instrument = db.query(models.Instrument).filter_by(name=instrument_name).first()
+    instrument = db.query(models.Instrument).filter_by(id=instrument_id).first()
     if not instrument:
         raise HTTPException(
             status_code=404,
-            detail=f"Instrument with name '{instrument_name}' not found.",
+            detail=f"Instrument with name '{instrument_id}' not found.",
         )
     return (
         db.query(models.Calibrate)
-        .filter_by(instrument_name=instrument_name)
+        .filter_by(instrument_id=instrument_id)
         .offset(skip)
         .limit(limit)
         .all()
@@ -72,19 +74,19 @@ def parse_timestamp(timestamp_str: str):
 
 @router.get("/instrument/calibration_data_report")
 async def calibration_data_report(
-    instrument_name: str,
+    instrument_id: UUID,
     start_timestamp: str = Query(None, description="Start timestamp (ISO 8601 format)"),
     end_timestamp: str = Query(None, description="End timestamp (ISO 8601 format)"),
     db: Session = Depends(get_db),
 ):
-    instrument = db.query(models.Instrument).filter_by(name=instrument_name).first()
+    instrument = db.query(models.Instrument).filter_by(id=instrument_id).first()
     if not instrument:
         raise HTTPException(
             status_code=404,
-            detail=f"Instrument with name '{instrument_name}' not found.",
+            detail=f"Instrument with id '{instrument_id}' not found.",
         )
 
-    filters = [models.Calibrate.instrument_name == instrument_name]
+    filters = [models.Calibrate.instrument_id == instrument_id]
 
     if start_timestamp:
         start_time = parse_timestamp(start_timestamp)
@@ -99,18 +101,26 @@ async def calibration_data_report(
 
     return utils.create_pdf(
         data=data,
-        name=instrument_name,
+        name=instrument.name,
         timestamp_start=start_timestamp,
         timestamp_end=end_timestamp,
     )
 
 
-@router.get("/instrument/last_calibration")
-async def get_last_calibration(instrument_name: str, db: Session = Depends(get_db)):
+@router.get("/instrument/last_calibration", response_model=LastCalibration)
+async def get_last_calibration(instrument_id: UUID, db: Session = Depends(get_db)):
     # Fetch the latest calibration log for the specified instrument
+    
+    instrument = db.query(models.Instrument).filter_by(id=instrument_id).first()
+    if not instrument:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Instrument with id '{instrument_id}' not found.",
+        )
+        
     last_calibration = (
         db.query(models.Calibrate)
-        .filter(models.Calibrate.instrument_name == instrument_name)
+        .filter(models.Calibrate.instrument_id == instrument_id)
         .order_by(desc(models.Calibrate.timestamp))
         .first()
     )
@@ -121,7 +131,4 @@ async def get_last_calibration(instrument_name: str, db: Session = Depends(get_d
         )
 
     # Return the last calibration timestamp
-    return {
-        "instrument_name": instrument_name,
-        "last_calibration": last_calibration.timestamp,
-    }
+    return LastCalibration(instrument_name=instrument.name, inspector=last_calibration.inspector, timestamp=last_calibration.timestamp)

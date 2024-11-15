@@ -61,6 +61,11 @@ class CalibrationData(BaseModel):
     class Config:
         form_attributes = True
 
+class LastCalibration(BaseModel):
+    instrument_name: str
+    inspector: str
+    timestamp: datetime
+
 
 class InstrumentProfileRead(BaseModel):
     id: UUID
