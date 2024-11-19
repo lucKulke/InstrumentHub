@@ -56,8 +56,8 @@ fi
 
 
 
-PROJECT_DIR="/home/$USER/instrument"  # Directory where the project will be set up
-SERVICE_NAME="instrument.service"
+PROJECT_DIR="/home/$USER/$INSTRUMENT_NAME"  # Directory where the project will be set up
+SERVICE_NAME="$INSTRUMENT_NAME.service"
 SERVICE_PATH="/etc/systemd/system/$SERVICE_NAME"
 
 # Set the GitHub raw URL for repository and branch
