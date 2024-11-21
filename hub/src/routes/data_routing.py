@@ -64,7 +64,7 @@ class ConnectionManager:
   
             if not is_valid_command:
                 await self.broadcast_to_clients(
-                    instrument_id=instrument_id, message="Error: unknown command"
+                    instrument_id=instrument_id, message=f"Error: ({message}) unknown command"
                 )
               
                 return False
@@ -74,11 +74,17 @@ class ConnectionManager:
                 await self.send_message(websocket, message)
 
     async def validate_command(self, message: str, instrument_id: UUID, db):
-        profile = await get_instrument_profile(instrument_id=instrument_id, db=db)
-        commands = profile[0].commands
-        if not commands:
+        instrument = db.query(models.Instrument).filter_by(id=instrument_id).first()
+        if not instrument:
             return False
-        commands = convert_commands_string_to_dict(profile[0].commands)
+        if not instrument.profile:
+            return False
+        
+        profile = db.query(models.InstrumentProfile).filter_by(id=instrument.profile).first()
+       
+        if not profile.commands:
+            return False
+        commands = convert_commands_string_to_dict(profile.commands)
         if message in commands:
             return True
         else:
