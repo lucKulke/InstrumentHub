@@ -1,4 +1,4 @@
-# Kleinmaelzung
+# InstrumentHub
 
 ## System Overview
 
